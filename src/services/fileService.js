@@ -1,55 +1,26 @@
 import api from './api';
-import mockDataService from './mockDataService';
 
-// للتبديل بين الوضع الحقيقي والوهمي
-const USE_MOCK = true;
-
-const fileService = USE_MOCK ? {
-  uploadFile: async (file, description, milestoneId, onUploadProgress) => {
-    return mockDataService.uploadFile(file, description, milestoneId);
-  },
-
-  getFiles: async (params) => {
-    return mockDataService.getFiles(params);
-  },
-
-  getFileById: async (fileId) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const files = await mockDataService.getFiles();
-    const file = files.data.find(f => f.id === parseInt(fileId));
-    if (!file) throw new Error('File not found');
-    return { data: file };
-  },
-
-  deleteFile: async (fileId) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { data: { success: true } };
-  },
-
-  downloadFile: async (fileId) => {
-    // في الوضع التجريبي، فقط نعرض رسالة
-    alert('File download functionality will be available when connected to backend');
-    return { data: { success: true } };
-  },
-
-  getFilesByMilestone: async (milestoneId) => {
-    const files = await mockDataService.getFiles();
-    const milestoneFiles = files.data.filter(f => f.milestoneId === parseInt(milestoneId));
-    return { data: milestoneFiles };
-  },
-
-  getRecentFiles: async (limit = 5) => {
-    const files = await mockDataService.getFiles();
-    return { data: files.data.slice(0, limit) };
-  },
-} : {
-  uploadFile: async (file, description, milestoneId, onUploadProgress) => {
+// Integration with File Controller API endpoints
+const fileService = {
+  /**
+   * Upload a new file
+   * @param {Object} fileData - File data and metadata
+   * @param {File} fileData.file - The file to be uploaded
+   * @param {string} fileData.description - File description (optional)
+   * @param {number} fileData.folderId - Folder ID
+   * @param {Function} onUploadProgress - Progress tracking function
+   */
+  uploadFile: async (fileData, onUploadProgress) => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('description', description);
-    formData.append('milestoneId', milestoneId);
-
-    return await api.post('/files/upload', formData, {
+    formData.append('file', fileData.file);
+    
+    if (fileData.description) {
+      formData.append('description', fileData.description);
+    }
+    
+    formData.append('folderId', fileData.folderId);
+    
+    return await api.post('/api/files', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -57,39 +28,54 @@ const fileService = USE_MOCK ? {
     });
   },
 
-  getFiles: async (projectId, milestoneId) => {
-    let url = '/files';
-    const params = new URLSearchParams();
-    
-    if (projectId) params.append('projectId', projectId);
-    if (milestoneId) params.append('milestoneId', milestoneId);
-    
-    if (params.toString()) {
-      url += `?${params.toString()}`;
-    }
-    
-    return await api.get(url);
-  },
-
+  /**
+   * Get file by ID
+   * @param {number} fileId - File ID
+   */
   getFileById: async (fileId) => {
-    return await api.get(`/files/${fileId}`);
+    return await api.get(`/api/files/${fileId}`);
   },
 
+  /**
+   * Get files in a specific folder
+   * @param {number} folderId - Folder ID
+   */
+  getFilesByFolder: async (folderId) => {
+    return await api.get(`/api/files/folder/${folderId}`);
+  },
+
+  /**
+   * Update file data
+   * @param {number} fileId - File ID
+   * @param {Object} fileData - Updated file data
+   */
+  updateFile: async (fileId, fileData) => {
+    return await api.put(`/api/files/${fileId}`, fileData);
+  },
+
+  /**
+   * Delete file
+   * @param {number} fileId - File ID
+   */
   deleteFile: async (fileId) => {
-    return await api.delete(`/files/${fileId}`);
+    return await api.delete(`/api/files/${fileId}`);
   },
 
+  /**
+   * Download file
+   * @param {number} fileId - File ID
+   */
   downloadFile: async (fileId) => {
-    const response = await api.get(`/files/${fileId}/download`, {
+    const response = await api.get(`/api/files/${fileId}/download`, {
       responseType: 'blob',
     });
     
-    // Create a download link
+    // Create download link
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
     
-    // Get filename from content-disposition header or use a default
+    // Get filename from content-disposition header or use default
     const contentDisposition = response.headers['content-disposition'];
     let filename = 'download';
     if (contentDisposition) {
@@ -110,7 +96,30 @@ const fileService = USE_MOCK ? {
     return response;
   },
 
-  // ... باقي الوظائف كما هي
+  /**
+   * Get user files
+   * @param {number} userId - User ID
+   */
+  getUserFiles: async (userId) => {
+    return await api.get(`/api/files/user/${userId}`);
+  },
+
+  /**
+   * Get user files in a specific folder
+   * @param {number} folderId - Folder ID
+   * @param {number} userId - User ID
+   */
+  getUserFolderFiles: async (folderId, userId) => {
+    return await api.get(`/api/files/folder/${folderId}/user/${userId}`);
+  },
+
+  /**
+   * Get file history
+   * @param {number} fileId - File ID
+   */
+  getFileHistory: async (fileId) => {
+    return await api.get(`/api/files/history/${fileId}`);
+  },
 };
 
 export default fileService;

@@ -30,7 +30,9 @@
     "loginTitle": "Sign in to your account",
     "registerTitle": "Create a new account",
     "email": "Email address",
+    "emailPlaceholder": "Enter your email",
     "password": "Password",
+    "passwordPlaceholder": "Enter your password",
     "confirmPassword": "Confirm password",
     "name": "Full name",
     "studentId": "Student ID",
@@ -46,13 +48,14 @@
     "studentIdRequired": "Student ID is required",
     "passwordMismatch": "Passwords do not match",
     "invalidEmail": "Invalid email address",
-    "passwordLength": "Password must be at least 8 characters",
+    "passwordLength": "Password must be at least 6 characters",
     "accountType": "Account Type",
     "student": "Student",
     "supervisor": "Supervisor",
     "selectRole": "Select your role",
     "alreadyHaveAccount": "Already have an account?",
-    "noAccount": "Don't have an account?"
+    "noAccount": "Don't have an account?",
+    "register": "Register"
   },
   "dashboard": {
     "welcome": "Welcome back",
@@ -64,11 +67,14 @@
     "uploadFile": "Upload File",
     "createProject": "Create Project",
     "viewAllProjects": "View All Projects",
+    "viewAll": "View All",
+    "viewReports": "View Reports",
     "statistics": "Statistics",
     "totalProjects": "Total Projects",
     "totalFiles": "Total Files",
     "totalMilestones": "Total Milestones",
-    "completedMilestones": "Completed Milestones"
+    "completedMilestones": "Completed Milestones",
+    "noDeadlines": "No upcoming deadlines"
   },
   "projects": {
     "title": "Projects",
@@ -215,5 +221,8 @@
     "unauthorized": "Unauthorized access",
     "somethingWentWrong": "Something went wrong",
     "tryAgain": "Please try again"
+  },
+  "validation": {
+    "nameMin": "Name must be at least {{min}} characters"
   }
 }

@@ -30,7 +30,9 @@
     "loginTitle": "تسجيل الدخول إلى حسابك",
     "registerTitle": "إنشاء حساب جديد",
     "email": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
     "password": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
     "confirmPassword": "تأكيد كلمة المرور",
     "name": "الاسم الكامل",
     "studentId": "الرقم الجامعي",
@@ -46,13 +48,14 @@
     "studentIdRequired": "الرقم الجامعي مطلوب",
     "passwordMismatch": "كلمتا المرور غير متطابقتين",
     "invalidEmail": "البريد الإلكتروني غير صالح",
-    "passwordLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "passwordLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
     "accountType": "نوع الحساب",
     "student": "طالب",
     "supervisor": "مشرف",
     "selectRole": "اختر دورك",
     "alreadyHaveAccount": "لديك حساب بالفعل؟",
-    "noAccount": "ليس لديك حساب؟"
+    "noAccount": "ليس لديك حساب؟",
+    "register": "إنشاء حساب"
   },
   "dashboard": {
     "welcome": "مرحباً بعودتك",
@@ -64,11 +67,14 @@
     "uploadFile": "رفع ملف",
     "createProject": "إنشاء مشروع",
     "viewAllProjects": "عرض جميع المشاريع",
+    "viewAll": "عرض الكل",
+    "viewReports": "عرض التقارير",
     "statistics": "الإحصائيات",
     "totalProjects": "إجمالي المشاريع",
     "totalFiles": "إجمالي الملفات",
     "totalMilestones": "إجمالي المراحل",
-    "completedMilestones": "المراحل المكتملة"
+    "completedMilestones": "المراحل المكتملة",
+    "noDeadlines": "لا توجد مواعيد نهائية قادمة"
   },
   "projects": {
     "title": "المشاريع",

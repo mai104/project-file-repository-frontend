@@ -1,94 +1,78 @@
 import api from './api';
-import mockAuthService from './mockAuthService';
 
-// للتبديل بين الوضع الحقيقي والوهمي
-const USE_MOCK = true;
-
-const authService = USE_MOCK ? mockAuthService : {
-  login: async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
-    return response;
-  },
-
+const authService = {
+  /**
+   * Register a new user
+   * @param {Object} userData - User data
+   * @param {string} userData.name - User name
+   * @param {string} userData.email - Email
+   * @param {string} userData.password - Password
+   * @param {string} userData.role - Role (STUDENT/SUPERVISOR)
+   * @param {string} userData.studentId - Student ID (for students only, optional)
+   */
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post('/api/v1/auth/register', userData);
+    
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
+    
     return response;
   },
 
+  /**
+   * Login
+   * @param {Object} credentials - Login credentials
+   * @param {string} credentials.email - Email
+   * @param {string} credentials.password - Password
+   */
+  login: async (credentials) => {
+    const response = await api.post('/api/v1/auth/login', credentials);
+    
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    
+    return response;
+  },
+
+  /**
+   * Logout
+   */
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   },
 
+  /**
+   * Get current user
+   */
   getCurrentUser: async () => {
-    const response = await api.get('/auth/me');
-    if (response.data) {
-      localStorage.setItem('user', JSON.stringify(response.data));
+    const user = localStorage.getItem('user');
+    if (!user) {
+      return Promise.reject('No authenticated user');
     }
-    return response;
+    
+    return { data: JSON.parse(user) };
   },
 
-  updateProfile: async (userData) => {
-    const response = await api.put('/auth/profile', userData);
-    if (response.data) {
-      localStorage.setItem('user', JSON.stringify(response.data));
-    }
-    return response;
-  },
-
-  changePassword: async (passwordData) => {
-    return await api.post('/auth/change-password', passwordData);
-  },
-
-  forgotPassword: async (email) => {
-    return await api.post('/auth/forgot-password', { email });
-  },
-
-  resetPassword: async (token, newPassword) => {
-    return await api.post('/auth/reset-password', { token, newPassword });
-  },
-
-  verifyEmail: async (token) => {
-    return await api.get(`/auth/verify-email/${token}`);
-  },
-
-  resendVerificationEmail: async () => {
-    return await api.post('/auth/resend-verification');
-  },
-
+  /**
+   * Check if user is authenticated
+   */
   isAuthenticated: () => {
     return !!localStorage.getItem('token');
   },
 
-  getToken: () => {
-    return localStorage.getItem('token');
-  },
-
-  getUser: () => {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  },
-
-  getUserRole: () => {
-    const user = authService.getUser();
-    return user ? user.role : null;
-  },
-
-  isStudent: () => {
-    return authService.getUserRole() === 'STUDENT';
-  },
-
-  isSupervisor: () => {
-    return authService.getUserRole() === 'SUPERVISOR';
-  },
+  /**
+   * Check if user has a specific role
+   * @param {string} role - Required role
+   */
+  hasRole: (role) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user && user.role === role;
+  }
 };
 
 export default authService;

@@ -1,131 +1,76 @@
 import api from './api';
-import mockDataService from './mockDataService';
+import repositoryService from './repositoryService';
+import folderService from './folderService';
 
-// للتبديل بين الوضع الحقيقي والوهمي
-const USE_MOCK = true;
-
-const projectService = USE_MOCK ? mockDataService : {
-  // Project API calls
+// Project service mapping to repository and folder services in the new API structure
+const projectService = {
+  // Map project functions to repository service
   getProjects: async () => {
-    return await api.get('/projects');
+    // Get the current user's repositories
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return repositoryService.getUserRepositories(user.id);
   },
 
   getProjectById: async (projectId) => {
-    return await api.get(`/projects/${projectId}`);
+    return repositoryService.getRepositoryById(projectId);
   },
 
   createProject: async (projectData) => {
-    return await api.post('/projects', projectData);
+    return repositoryService.createRepository(projectData);
   },
 
   updateProject: async (projectId, projectData) => {
-    return await api.put(`/projects/${projectId}`, projectData);
+    return repositoryService.updateRepository(projectId, projectData);
   },
 
   deleteProject: async (projectId) => {
-    return await api.delete(`/projects/${projectId}`);
+    return repositoryService.deleteRepository(projectId);
   },
 
   searchProjects: async (query) => {
-    return await api.get(`/projects/search?q=${query}`);
+    return repositoryService.searchRepositories(query);
   },
 
-  getProjectsByStatus: async (status) => {
-    return await api.get(`/projects/status/${status}`);
-  },
-
-  // Milestone API calls
+  // Map milestone functions to folder service (treating milestones as special folders)
   getMilestones: async (projectId) => {
-    return await api.get(`/projects/${projectId}/milestones`);
+    return folderService.getMilestoneFolders(projectId);
   },
 
   getMilestoneById: async (projectId, milestoneId) => {
-    return await api.get(`/projects/${projectId}/milestones/${milestoneId}`);
+    return folderService.getFolderById(milestoneId);
   },
 
   createMilestone: async (projectId, milestoneData) => {
-    return await api.post(`/projects/${projectId}/milestones`, milestoneData);
+    const folderData = {
+      name: milestoneData.milestoneName,
+      description: milestoneData.description,
+      repositoryId: projectId,
+      isMilestone: true,
+      dueDate: milestoneData.dueDate
+    };
+    return folderService.createFolder(folderData);
   },
 
   updateMilestone: async (projectId, milestoneId, milestoneData) => {
-    return await api.put(`/projects/${projectId}/milestones/${milestoneId}`, milestoneData);
+    const folderData = {
+      name: milestoneData.milestoneName,
+      description: milestoneData.description,
+      dueDate: milestoneData.dueDate,
+      repositoryId: projectId
+    };
+    return folderService.updateFolder(milestoneId, folderData);
   },
 
   deleteMilestone: async (projectId, milestoneId) => {
-    return await api.delete(`/projects/${projectId}/milestones/${milestoneId}`);
+    return folderService.deleteFolder(milestoneId);
   },
 
   markMilestoneComplete: async (projectId, milestoneId) => {
-    return await api.post(`/projects/${projectId}/milestones/${milestoneId}/complete`);
-  },
-
-  // Team API calls
-  getProjectTeam: async (projectId) => {
-    return await api.get(`/projects/${projectId}/team`);
-  },
-
-  addTeamMember: async (projectId, userId) => {
-    return await api.post(`/projects/${projectId}/team`, { userId });
-  },
-
-  removeTeamMember: async (projectId, userId) => {
-    return await api.delete(`/projects/${projectId}/team/${userId}`);
-  },
-
-  updateTeamMemberRole: async (projectId, userId, role) => {
-    return await api.put(`/projects/${projectId}/team/${userId}`, { role });
-  },
-
-  // Statistics API calls
-  getProjectStats: async (projectId) => {
-    return await api.get(`/projects/${projectId}/stats`);
-  },
-
-  getOverallStats: async () => {
-    return await api.get('/projects/stats');
-  },
-
-  // Activity API calls
-  getProjectActivity: async (projectId) => {
-    return await api.get(`/projects/${projectId}/activity`);
-  },
-
-  // Deadline API calls
-  getUpcomingDeadlines: async () => {
-    return await api.get('/projects/deadlines');
-  },
-
-  // Export/Import API calls
-  exportProject: async (projectId) => {
-    const response = await api.get(`/projects/${projectId}/export`, {
-      responseType: 'blob',
-    });
-
-    // Create download link
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `project-${projectId}-export.zip`);
-    document.body.appendChild(link);
-    link.click();
-    
-    // Cleanup
-    link.parentNode.removeChild(link);
-    window.URL.revokeObjectURL(url);
-    
-    return response;
-  },
-
-  importProject: async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    return await api.post('/projects/import', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  },
+    const folderData = {
+      status: 'COMPLETED'
+    };
+    return folderService.updateFolder(milestoneId, folderData);
+  }
 };
 
 export default projectService;
